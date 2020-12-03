@@ -1,7 +1,7 @@
 #include "gengine.h"
 #include <cstdio>
 #include <cstdlib>
-#include <ctime>
+#include <random>
 
 #include "quadtree.cpp"
 
@@ -11,8 +11,7 @@ const int HEIGHT = 1000;
 
 
 void DrawQuadtrees(game_engine *Engine, Quadtree *qt);
-
-void DrawPointRects(game_engine *Engine, std::vector<pt2d> &vec);
+void DrawPoints(game_engine *Engine, std::vector<pt2d> &vec);
 
 int main(int argc, char **argv)
 {
@@ -20,18 +19,18 @@ int main(int argc, char **argv)
     Engine_Init(Gengine, WIDTH, HEIGHT, "KAWHKAHA");
 
     int LargerDim = std::max(WIDTH, HEIGHT);
-    std::shared_ptr<BoundaryBox> boundaries(new BoundaryBox(
-            WIDTH/2, 
-            HEIGHT/2, 
-            LargerDim/2));
+    std::shared_ptr<BoundaryBox> boundaries(new BoundaryBox(WIDTH/2, HEIGHT/2, LargerDim/2));
     Quadtree *qtree = new Quadtree(boundaries, 0, 0);
     
     std::vector<pt2d> points;
+    std::normal_distribution<> d{WIDTH/2, WIDTH/6};
 
-    srand(time(0));
-    for(int i = 0; i < 100; ++i)
+    std::random_device rd;
+    for(int i = 0; i < 1000; ++i)
     {
-        pt2d point(rand()%WIDTH - 1, rand()%HEIGHT);
+        double rand1 = d(rd);
+        double rand2 = d(rd);
+        pt2d point((int)rand1 % WIDTH - 1, (int)rand2 % HEIGHT);
         points.push_back(point);
         qtree->insert(point);
     }
@@ -40,6 +39,7 @@ int main(int argc, char **argv)
     DrawPoints(Gengine, points);
 
     SDL_RenderPresent(Gengine->Renderer);
+
 
     SDL_Event event;
     while(Running)
