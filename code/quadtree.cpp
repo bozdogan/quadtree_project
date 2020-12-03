@@ -232,6 +232,38 @@ void Quadtree::traverse_and_draw(Quadtree *t, float widthRootNode)
     }
 }
 */
+#ifdef GENGINE_H
+    void
+    Quadtree::traverse_and_draw(game_engine *Engine)
+    {
+        Quadtree::_traverse_and_draw(Engine, this);
+    }
+
+    void
+    Quadtree::_traverse_and_draw(game_engine *Engine, Quadtree *Subtree)
+    {
+        if(Subtree->northWest) _traverse_and_draw(Engine, Subtree->northWest);
+        if(Subtree->northEast) _traverse_and_draw(Engine, Subtree->northEast);
+        if(Subtree->southWest) _traverse_and_draw(Engine, Subtree->southWest);
+        if(Subtree->southEast) _traverse_and_draw(Engine, Subtree->southEast);
+
+        SDL_Rect rect = {
+            Subtree->boundary2->cx - Subtree->boundary2->dim,
+            Subtree->boundary2->cy - Subtree->boundary2->dim,
+            Subtree->boundary2->dim * 2,
+            Subtree->boundary2->dim * 2};
+
+        Uint8 colorValue = 220 - 30*Subtree->nodeDepth;
+        if(colorValue < 40) colorValue = 40;
+
+        Uint8 red = colorValue/2;
+        Uint8 green = (Subtree->nodeDepth % 2) * colorValue;
+        Uint8 blue = (Subtree->nodeDepth % 2 == 0) * colorValue;
+
+        SDL_SetRenderDrawColor(Engine->Renderer, red, green, blue, 255);
+        SDL_RenderDrawRect(Engine->Renderer, &rect);
+    }
+#endif
 
 // count the nodes of the tree
 int Quadtree::count_nodes(Quadtree *t)

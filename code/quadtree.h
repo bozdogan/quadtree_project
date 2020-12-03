@@ -63,9 +63,6 @@ public:
 
     Quadtree* parent;
 
-    // // drawing routine (used by traverse_and_draw)
-    // static void colorPick(Quadtree *t, float *depthColor, int depthColorLen);
-
     // auxiliary function used by delete_element()
     void concatenate_nodes(Quadtree *concat_this_node_maybe);
 
@@ -79,8 +76,10 @@ public:
     void clear(Quadtree *t);
 
 public:
-    // Use 0 as node depth on root tree 
+    // constructor
     Quadtree(std::shared_ptr<BoundaryBox> BB_init, Quadtree *parent, int _nodeDepth);
+    
+    //destructor
     ~Quadtree();
 
     bool insert(pt2d insertPt);
@@ -88,8 +87,11 @@ public:
     // create four children that fully divide this quad into four quads of equal area
     void subdivide();
 
-    // draw the tree using OpenGL
-    void traverse_and_draw(Quadtree* t, float widthRootNode);
+    
+#ifdef GENGINE_H
+    void traverse_and_draw(game_engine *Engine);
+    void _traverse_and_draw(game_engine *Engine, Quadtree *subtree);
+#endif
 
     int count_nodes(Quadtree *t);
 
