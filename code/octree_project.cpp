@@ -15,8 +15,8 @@ void DrawPoints(game_engine *Engine, std::vector<pt2d> &vec);
 
 int main(int argc, char **argv)
 {
-    game_engine *Gengine = (game_engine *) malloc(sizeof(game_engine));
-    Engine_Init(Gengine, WIDTH, HEIGHT, "KAWHKAHA");
+    game_engine *Engine = (game_engine *) malloc(sizeof(game_engine));
+    Engine_Init(Engine, WIDTH, HEIGHT, "KAWHKAHA");
 
     int LargerDim = std::max(WIDTH, HEIGHT);
     std::shared_ptr<BoundaryBox> boundaries(new BoundaryBox(WIDTH/2, HEIGHT/2, LargerDim/2));
@@ -35,10 +35,14 @@ int main(int argc, char **argv)
         qtree->insert(point);
     }
 
-    qtree->traverse_and_draw(Gengine);
-    DrawPoints(Gengine, points);
+    qtree->traverse_and_draw(Engine);
+    DrawPoints(Engine, points);
 
-    SDL_RenderPresent(Gengine->Renderer);
+    SDL_SetRenderDrawColor(Engine->Renderer, 255, 255, 255, 255);
+    SDL_Rect Origin = {-1, -1, 3, 3};
+    SDL_RenderDrawRect(Engine->Renderer, &Origin);
+
+    SDL_RenderPresent(Engine->Renderer);
 
 
     SDL_Event event;
@@ -52,7 +56,7 @@ int main(int argc, char **argv)
     }
 
     delete qtree;
-    Engine_Destroy(Gengine);
+    Engine_Destroy(Engine);
 
     return 0;
 }
