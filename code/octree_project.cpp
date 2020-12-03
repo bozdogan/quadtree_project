@@ -1,12 +1,7 @@
+#include "gengine.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-
-#ifdef _WIN32
-    #include <SDL.h>
-#else
-    #include <SDL2/SDL.h>
-#endif
 
 #include "quadtree.cpp"
 
@@ -15,13 +10,60 @@ const int WIDTH = 1000;
 const int HEIGHT = 1000;
 
 
-void DrawQuadtrees(SDL_Renderer *renderer, Quadtree *qt)
-{
+void DrawQuadtrees(game_engine *Engine, Quadtree *qt);
 
-    if(qt->northWest) DrawQuadtrees(renderer, qt->northWest);
-    if(qt->northEast) DrawQuadtrees(renderer, qt->northEast);
-    if(qt->southWest) DrawQuadtrees(renderer, qt->southWest);
-    if(qt->southEast) DrawQuadtrees(renderer, qt->southEast);
+void DrawPointRects(game_engine *Engine, std::vector<pt2d> &vec);
+
+int main(int argc, char **argv)
+{
+    game_engine *Gengine = (game_engine *) malloc(sizeof(game_engine));
+    Engine_Init(Gengine, WIDTH, HEIGHT, "KAWHKAHA");
+
+    int LargerDim = std::max(WIDTH, HEIGHT);
+    std::shared_ptr<BoundaryBox> boundaries(new BoundaryBox(
+            WIDTH/2, 
+            HEIGHT/2, 
+            LargerDim/2));
+    Quadtree *qtree = new Quadtree(boundaries, 0, 0);
+    
+    std::vector<pt2d> points;
+
+    srand(time(0));
+    for(int i = 0; i < 100; ++i)
+    {
+        pt2d point(rand()%WIDTH - 1, rand()%HEIGHT);
+        points.push_back(point);
+        qtree->insert(point);
+    }
+
+    DrawQuadtrees(Gengine, qtree);
+    DrawPoints(Gengine, points);
+
+    SDL_RenderPresent(Gengine->Renderer);
+
+    SDL_Event event;
+    while(Running)
+    {
+        SDL_PollEvent(&event);
+        if (event.type == SDL_QUIT)
+        {
+            Running = 0;
+        }
+    }
+
+    delete qtree;
+    Engine_Destroy(Gengine);
+
+    return 0;
+}
+
+
+void DrawQuadtrees(game_engine *Engine, Quadtree *qt)
+{
+    if(qt->northWest) DrawQuadtrees(Engine, qt->northWest);
+    if(qt->northEast) DrawQuadtrees(Engine, qt->northEast);
+    if(qt->southWest) DrawQuadtrees(Engine, qt->southWest);
+    if(qt->southEast) DrawQuadtrees(Engine, qt->southEast);
 
     SDL_Rect rect = {
         qt->boundary2->cx - qt->boundary2->dim,
@@ -35,74 +77,20 @@ void DrawQuadtrees(SDL_Renderer *renderer, Quadtree *qt)
     Uint8 red = colorValue/2;
     Uint8 green = (qt->nodeDepth % 2) * colorValue;
     Uint8 blue = (qt->nodeDepth % 2 == 0) * colorValue;
-    printf("%d, %d %d %d\n", qt->nodeDepth, red, green, blue);
 
-    SDL_SetRenderDrawColor(renderer, red, green, blue, 255);
-    SDL_RenderDrawRect(renderer, &rect);
+    SDL_SetRenderDrawColor(Engine->Renderer, red, green, blue, 255);
+    SDL_RenderDrawRect(Engine->Renderer, &rect);
 }
 
 
-void DrawPointRects(SDL_Renderer *renderer, std::vector<pt2d> vec)
+void DrawPoints(game_engine *Engine, std::vector<pt2d> &vec)
 {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  
+    SDL_SetRenderDrawColor(Engine->Renderer, 255, 0, 0, 255);  
     for(auto it = vec.begin(); it != vec.end(); ++it)
     {
         const int ptwidth = 3;
         
         SDL_Rect rect = {it->x - ptwidth/2, it->y - ptwidth/2, ptwidth, ptwidth};
-        SDL_RenderFillRect(renderer, &rect);
+        SDL_RenderFillRect(Engine->Renderer, &rect);
     }
-}
-
-
-int main(int argc, char **argv)
-{
-    if(SDL_Init(SDL_INIT_VIDEO))
-    {
-        return 1;
-    }
-
-    SDL_Window *window = SDL_CreateWindow(
-            "KAWHKAHA",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            WIDTH, HEIGHT, 0);
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-
-    std::shared_ptr<BoundaryBox> boundaries(new BoundaryBox(
-            WIDTH/2, HEIGHT/2, WIDTH/2));
-    Quadtree *qtree = new Quadtree(boundaries, 0, 0);
-    std::vector<pt2d> points;
-
-    srand(time(0));
-
-    for(int i = 0; i < 100; ++i)
-    {
-        pt2d point(rand()%WIDTH - 1, rand()%HEIGHT);
-        points.push_back(point);
-        qtree->insert(point);
-    }
-
-    DrawQuadtrees(renderer, qtree);
-    DrawPointRects(renderer, points);
-
-    SDL_RenderPresent(renderer);
-
-    SDL_Event event;
-    while(Running)
-    {
-        SDL_PollEvent(&event);
-        if (event.type == SDL_QUIT)
-        {
-            Running = 0;
-        }
-    }
-
-
-    delete qtree;
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-    SDL_Quit();
-    return 0;
 }
