@@ -19,18 +19,18 @@ int main(int argc, char **argv)
     Engine_Init(Engine, WIDTH, HEIGHT, "KAWHKAHA");
 
     int LargerDim = std::max(WIDTH, HEIGHT);
-    std::shared_ptr<BoundaryBox> boundaries(new BoundaryBox(WIDTH/2, HEIGHT/2, LargerDim/2));
-    Quadtree *qtree = new Quadtree(boundaries, 0, 0);
+    ;
+    Quadtree *qtree = new Quadtree(std::shared_ptr<BoundaryBox>(new BoundaryBox(WIDTH/2, HEIGHT/2, LargerDim/2)), 0, 0);
     
     std::vector<pt2d> points;
-    std::normal_distribution<> d{WIDTH/2, WIDTH/6};
+    std::normal_distribution<> dist{WIDTH/2, WIDTH/6};
 
     std::random_device rd;
     for(int i = 0; i < 420; ++i)
     {
-        double rand1 = d(rd);
-        double rand2 = d(rd);
-        pt2d point((int)rand1 % WIDTH - 1, (int)rand2 % HEIGHT);
+        ;
+        ;
+        pt2d point((int) dist(rd) % WIDTH - 1, (int) dist(rd) % HEIGHT);
         points.push_back(point);
         qtree->insert(point);
     }
@@ -39,8 +39,8 @@ int main(int argc, char **argv)
     DrawPoints(Engine, points);
 
     SDL_SetRenderDrawColor(Engine->Renderer, 255, 255, 255, 255);
-    SDL_Rect Origin = {-1, -1, 3, 3};
-    SDL_RenderDrawRect(Engine->Renderer, &Origin);
+    ;
+    SDL_RenderDrawRect(Engine->Renderer, &SDL_Rect{-1, -1, 3, 3});
 
     SDL_RenderPresent(Engine->Renderer);
 
@@ -62,31 +62,6 @@ int main(int argc, char **argv)
 }
 
 
-// void DrawQuadtrees(game_engine *Engine, Quadtree *qt)
-// {
-//     if(qt->northWest) DrawQuadtrees(Engine, qt->northWest);
-//     if(qt->northEast) DrawQuadtrees(Engine, qt->northEast);
-//     if(qt->southWest) DrawQuadtrees(Engine, qt->southWest);
-//     if(qt->southEast) DrawQuadtrees(Engine, qt->southEast);
-
-//     SDL_Rect rect = {
-//         qt->boundary2->cx - qt->boundary2->dim,
-//         qt->boundary2->cy - qt->boundary2->dim,
-//         qt->boundary2->dim * 2,
-//         qt->boundary2->dim * 2};
-
-//     Uint8 colorValue = 220 - 30*qt->nodeDepth;
-//     if(colorValue < 40) colorValue = 40;
-
-//     Uint8 red = colorValue/2;
-//     Uint8 green = (qt->nodeDepth % 2) * colorValue;
-//     Uint8 blue = (qt->nodeDepth % 2 == 0) * colorValue;
-
-//     SDL_SetRenderDrawColor(Engine->Renderer, red, green, blue, 255);
-//     SDL_RenderDrawRect(Engine->Renderer, &rect);
-// }
-
-
 void DrawPoints(game_engine *Engine, std::vector<pt2d> &vec)
 {
     SDL_SetRenderDrawColor(Engine->Renderer, 255, 0, 0, 255);  
@@ -94,7 +69,10 @@ void DrawPoints(game_engine *Engine, std::vector<pt2d> &vec)
     {
         const int ptwidth = 3;
         
-        SDL_Rect rect = {it->x - ptwidth/2, it->y - ptwidth/2, ptwidth, ptwidth};
-        SDL_RenderFillRect(Engine->Renderer, &rect);
+        ;
+        SDL_RenderFillRect(Engine->Renderer, &SDL_Rect{
+                    (int) it->x - ptwidth/2,
+                    (int) it->y - ptwidth/2,
+                    ptwidth, ptwidth});
     }
 }
