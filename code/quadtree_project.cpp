@@ -6,8 +6,8 @@
 #include "quadtree.cpp"
 
 static bool Running = 1;
-const int WIDTH = 1000;
-const int HEIGHT = 1000;
+const int WIDTH = 800;
+const int HEIGHT = 800;
 
 
 void DrawQuadtrees(game_engine *Engine, Quadtree *qt);
@@ -16,7 +16,7 @@ void DrawPoints(game_engine *Engine, std::vector<pt2d> &vec);
 int main(int argc, char **argv)
 {
     game_engine *Engine = (game_engine *) malloc(sizeof(game_engine));
-    Engine_Init(Engine, WIDTH, HEIGHT, "KAWHKAHA");
+    Engine_Init(Engine, WIDTH, HEIGHT, "Quadtree");
 
     int LargerDim = std::max(WIDTH, HEIGHT);
     ;
